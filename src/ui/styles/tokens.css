@@ -7,7 +7,7 @@
   --bg: #2340e8; /* cobalt */
   --fg: #f5f0e6;
   --accent: #d9ff3f; /* the player's side, focus, cursor */
-  --signal: #ff5a3c; /* hits, incidents */
+  --signal: #ff9f1c; /* hits, incidents */
   --muted: color-mix(in srgb, var(--fg) 62%, var(--bg));
 
   /* Derived, never new colours: hairlines and washes. */
@@ -34,7 +34,7 @@
   --bg: #6b2fe3; /* violet */
   --fg: #f6f0ff;
   --accent: #e4ff5c;
-  --signal: #ff6a47;
+  --signal: #ff9f1c;
 }
 
 :root[data-theme='3'] {
@@ -45,10 +45,10 @@
 }
 
 :root[data-theme='4'] {
-  --bg: #0f8f52; /* green */
+  --bg: #0a7a43; /* green */
   --fg: #f1f8ec;
   --accent: #f0ff4d;
-  --signal: #ff5a3c;
+  --signal: #14102e; /* ink: warm colours don't read on green */
 }
 
 @media (prefers-reduced-motion: reduce) {
