@@ -10,6 +10,7 @@ import { describeTurn, ownCell, targetCell } from '../boardModel';
 import { FleetList, type FleetEntry } from '../components/FleetList';
 import { Grid, type CellModel } from '../components/Grid';
 import { useFocusOnMount } from '../hooks/useFocusOnMount';
+import { useShotSound } from '../hooks/useSound';
 import styles from './Screen.module.css';
 
 interface Props {
@@ -58,6 +59,7 @@ export function BattleScreen({
   const [targetCursor, setTargetCursor] = useState<Coord>(coord(0, 0));
   const [ownCursor, setOwnCursor] = useState<Coord>(coord(0, 0));
   const [showHint, setShowHint] = useState(true);
+  useShotSound(state.log);
 
   const coop = state.mode === 'coop';
   const over = state.phase === 'over';
@@ -161,6 +163,7 @@ export function BattleScreen({
             </h2>
             <Grid
               label="Your board"
+              compact
               size={state.size}
               cellAt={(c) => ownCell(state.player, c)}
               cursor={ownCursor}

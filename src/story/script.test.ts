@@ -25,6 +25,12 @@ describe('story script', () => {
     expect(introLines(createCampaign(1))).toBe(chapters[1].intro);
   });
 
+  it('uses the neutral version when a shortcut skipped the previous chapter', () => {
+    const c4 = chapters[4].intro;
+    if (!('afterWin' in c4)) throw new Error('chapter 4 should vary');
+    expect(introLines(createCampaign(1, 4))).toBe(c4.afterWin);
+  });
+
   it('escalates with each fight, then holds at the last step', () => {
     const at = (fights: number) => escalationFor({ ...createCampaign(1, 4), fights });
     expect(at(1)).toBe(escalations[0]);
@@ -33,9 +39,11 @@ describe('story script', () => {
   });
 
   it('reflects the record in the ending', () => {
-    const results = ['won', 'lost', 'won'] as const;
+    const results = { 1: 'won', 2: 'lost', 3: 'won' } as const;
     const lines = endingLines({ ...createCampaign(1, 4), results, fights: 0 });
     expect(lines).toContain(ending.record[2]);
+    const skipped = endingLines(createCampaign(1, 4));
+    expect(ending.record.some((line) => skipped.includes(line))).toBe(false);
     expect(lines).not.toContain(ending.foughtOn);
     expect(endingLines({ ...createCampaign(1, 4), fights: 2 })).toContain(ending.foughtOn);
   });

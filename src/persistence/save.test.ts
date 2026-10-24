@@ -29,7 +29,7 @@ describe('save', () => {
   });
 
   it('round-trips a campaign', () => {
-    const campaign = { ...createCampaign(99, 3), results: ['won', 'lost'] as const };
+    const campaign = { ...createCampaign(99, 3), results: { 1: 'won', 2: 'lost' } as const };
     saveCampaign(campaign, storage);
     expect(loadCampaign(storage)).toEqual(campaign);
   });
@@ -65,6 +65,17 @@ describe('save', () => {
       JSON.stringify({ version: SAVE_VERSION, campaign: { ...createCampaign(1), fights: -1 } }),
     ],
     ['no campaign', JSON.stringify({ version: SAVE_VERSION })],
+    [
+      'an unreachable stage',
+      JSON.stringify({ version: SAVE_VERSION, campaign: { ...createCampaign(1), stage: 'coop' } }),
+    ],
+    [
+      'a result for a chapter not yet played',
+      JSON.stringify({
+        version: SAVE_VERSION,
+        campaign: { ...createCampaign(1, 2), results: { 3: 'won' } },
+      }),
+    ],
   ])('discards %s', (_, raw) => {
     storage.setItem(SAVE_KEY, raw);
     expect(loadCampaign(storage)).toBeUndefined();
