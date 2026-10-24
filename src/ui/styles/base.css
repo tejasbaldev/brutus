@@ -6,6 +6,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+  /* Chapter transitions: the ground changes colour with the chapter. */
+  transition: background-color calc(var(--duration) * 3) var(--ease);
 }
 
 body {

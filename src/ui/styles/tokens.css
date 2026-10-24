@@ -1,10 +1,14 @@
 /* The whole palette. Add a token here before using a new colour anywhere. */
 :root {
-  --bg: #0b0c0e;
-  --fg: #ebe6da;
-  --muted: #7b7e84;
-  --accent: #c7a76b; /* the player's side, focus, cursor */
-  --signal: #d8674f; /* hits, incidents */
+  /*
+   * Five colours, one set per chapter: a saturated ground with ink type on top.
+   * The theme is set with data-theme on <html> (see App.tsx); chapter 1 is the default.
+   */
+  --bg: #2340e8; /* cobalt */
+  --fg: #f5f0e6;
+  --accent: #d9ff3f; /* the player's side, focus, cursor */
+  --signal: #ff5a3c; /* hits, incidents */
+  --muted: color-mix(in srgb, var(--fg) 62%, var(--bg));
 
   /* Derived, never new colours: hairlines and washes. */
   --hairline: color-mix(in srgb, var(--fg) 12%, transparent);
@@ -24,6 +28,27 @@
 
   --duration: 240ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme='2'] {
+  --bg: #6b2fe3; /* violet */
+  --fg: #f6f0ff;
+  --accent: #e4ff5c;
+  --signal: #ff6a47;
+}
+
+:root[data-theme='3'] {
+  --bg: #ff6d1f; /* tangerine */
+  --fg: #16100c;
+  --accent: #1f36e0;
+  --signal: #20104a;
+}
+
+:root[data-theme='4'] {
+  --bg: #0f8f52; /* green */
+  --fg: #f1f8ec;
+  --accent: #f0ff4d;
+  --signal: #ff5a3c;
 }
 
 @media (prefers-reduced-motion: reduce) {

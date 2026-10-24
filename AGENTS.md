@@ -89,7 +89,8 @@ createAi(tier, rng): Ai
    live region for shot results, and `prefers-reduced-motion` respected (the typewriter becomes
    instant and animations are dropped).
 6. **Visual restraint:** two typefaces (`--font-display`, a serif for headings and story lines; `--font-mono` for everything else; both self-hosted in `public/fonts`), five colours as CSS
-   variables in `src/ui/styles/tokens.css` (`--bg --fg --muted --accent --signal`). No new
+   variables in `src/ui/styles/tokens.css` (`--bg --fg --muted --accent --signal`), with one set
+   per chapter selected by `data-theme` on `<html>`: a saturated ground, ink type on top. No new
    colours without updating tokens. No gradients, no emoji UI. Motion only for hit, sink, and
    chapter transitions.
 7. **Board is CSS Grid (or SVG), never Canvas.**

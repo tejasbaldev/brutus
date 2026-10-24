@@ -58,6 +58,10 @@ function Campaign() {
     if (campaign) saveCampaign(campaign);
   }, [campaign]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = String(campaign?.chapter ?? 1);
+  }, [campaign?.chapter]);
+
   if (!campaign) {
     return (
       <TitleScreen
