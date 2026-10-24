@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, type CSSProperties, type KeyboardEvent } from 'react';
 import { coord, coordKey, sameCoord, toLabel } from '../../engine/coord';
 import type { Coord } from '../../engine/types';
 import styles from './Grid.module.css';
@@ -11,6 +11,8 @@ export interface CellModel {
   readonly overlay?: CellOverlay | undefined;
   /** Spoken after the coordinate, e.g. "hit, The Promotion". */
   readonly description: string;
+  /** 0-1: a faint hint of where the AI thinks ships are (co-op). Visual only. */
+  readonly heat?: number | undefined;
 }
 
 interface GridProps {
@@ -105,6 +107,12 @@ export function Grid({
                   className={styles.cell}
                   data-kind={model.kind}
                   data-overlay={model.overlay}
+                  data-heat={model.heat === undefined ? undefined : ''}
+                  style={
+                    model.heat === undefined
+                      ? undefined
+                      : ({ '--heat': model.heat.toFixed(2) } as CSSProperties)
+                  }
                   tabIndex={focused ? 0 : -1}
                   aria-label={`${toLabel(at)}, ${model.description}`}
                   aria-disabled={disabled || undefined}
