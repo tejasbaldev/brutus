@@ -1,0 +1,27 @@
+/* The whole palette. Add a token here before using a new colour anywhere. */
+:root {
+  --bg: #0e0f11;
+  --fg: #e6e3dc;
+  --muted: #6b6f76;
+  --accent: #c8a96a; /* the player's side, focus, cursor */
+  --signal: #d4644f; /* hits, incidents */
+
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 2rem;
+  --space-5: 4rem;
+
+  --radius: 2px;
+  --duration: 240ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration: 0ms;
+  }
+}
