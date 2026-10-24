@@ -22,6 +22,7 @@ import { SoundContext } from './hooks/useSound';
 import { readDebugParams } from './params';
 import { randomSeed } from './random';
 import { BattleScreen } from './screens/BattleScreen';
+import { MeetDevinScreen } from './screens/MeetDevinScreen';
 import { PlacementScreen } from './screens/PlacementScreen';
 import { StoryScreen } from './screens/StoryScreen';
 import { TitleScreen } from './screens/TitleScreen';
@@ -227,18 +228,29 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
         />
       );
     case 'ending':
-      return (
-        <StoryScreen
-          eyebrow={ending.eyebrow}
-          heading={ending.heading}
-          lines={endingLines(campaign)}
-        >
-          <button type="button" className={styles.secondary} onClick={onRestart}>
-            Start over
-          </button>
-        </StoryScreen>
-      );
+      return <Ending campaign={campaign} onRestart={onRestart} />;
   }
+}
+
+function Ending({ campaign, onRestart }: { campaign: CampaignState; onRestart: () => void }) {
+  const [touring, setTouring] = useState(false);
+  if (touring) return <MeetDevinScreen onRestart={onRestart} />;
+  return (
+    <StoryScreen eyebrow={ending.eyebrow} heading={ending.heading} lines={endingLines(campaign)}>
+      <button
+        type="button"
+        className={styles.primary}
+        onClick={() => {
+          setTouring(true);
+        }}
+      >
+        Meet your new teammate
+      </button>
+      <button type="button" className={styles.secondary} onClick={onRestart}>
+        Start over
+      </button>
+    </StoryScreen>
+  );
 }
 
 interface MatchProps {

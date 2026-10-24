@@ -48,6 +48,19 @@ test('chapter 4: keep fighting escalates, teaming up resolves the incident', asy
   await expect(
     page.getByRole('paragraph').filter({ hasText: 'You kept fighting for a while first.' }),
   ).toBeAttached();
+  await button(page, 'Meet your new teammate').click();
+  await expect(h1(page)).toHaveText('Meet your new teammate');
+  await expect(page.getByRole('heading', { level: 2, name: 'Devin' })).toBeVisible();
+  for (let i = 0; i < 4; i++) await button(page, 'Next').click();
+  await expect(page.getByRole('link', { name: 'Sign up for Devin' })).toHaveAttribute(
+    'href',
+    'https://app.devin.ai/',
+  );
+  await button(page, 'DeepWiki').click();
+  await expect(page.getByRole('heading', { level: 2, name: 'DeepWiki' })).toBeVisible();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('heading', { level: 2, name: 'Windsurf' })).toBeVisible();
+  for (let i = 0; i < 2; i++) await page.keyboard.press('ArrowRight');
   await button(page, 'Start over').click();
   await expect(button(page, 'Begin')).toBeVisible();
 });

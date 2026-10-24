@@ -261,3 +261,45 @@ export const commentary: Record<
     sunk: ['{ship}, fixed. Nice catch on that one.', '{ship} is down. We make a decent team.'],
   },
 };
+
+/** After the ending: a short, optional click-through of the tools behind the AI teammate. */
+export const meetDevin = {
+  eyebrow: 'After the incident',
+  heading: 'Meet your new teammate',
+  lede: 'The AI you just worked with is fiction. These tools from Cognition are not.',
+  cards: [
+    {
+      name: 'Devin',
+      kind: 'AI software engineer',
+      body: 'Give it a task in plain language. It plans, writes the code in its own environment, runs the tests, and opens a pull request for you to review.',
+      forYou: 'Hand it the backlog. Keep the side project.',
+    },
+    {
+      name: 'Devin Review',
+      kind: 'Pull request review',
+      body: 'Reads every pull request, flags likely bugs with an explanation of why, and can fix the ones you agree with.',
+      forYou: 'A second pair of eyes, even at 2am.',
+    },
+    {
+      name: 'DeepWiki',
+      kind: 'Codebase understanding',
+      body: 'Turns a GitHub repository into a browsable wiki with architecture diagrams, and answers questions about how the code works.',
+      forYou: 'Find your way around an unfamiliar codebase in an afternoon.',
+    },
+    {
+      name: 'Windsurf',
+      kind: 'AI code editor',
+      body: 'An editor with an agent that works alongside you in your files: it suggests, edits across the project, and runs commands with you.',
+      forYou: 'Stay in flow while you build.',
+    },
+  ],
+  cta: {
+    kind: 'Get started',
+    name: 'Your first project',
+    body: 'You just shipped alongside an AI. Try it on real work: pick one task from your own project and hand it to Devin.',
+    button: 'Sign up for Devin',
+    url: 'https://app.devin.ai/',
+    docs: 'Read the docs',
+    docsUrl: 'https://docs.devin.ai/',
+  },
+};
