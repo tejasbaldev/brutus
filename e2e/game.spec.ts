@@ -68,8 +68,9 @@ test('plays chapter 1 to a result, with commentary, and moves on to chapter 2', 
   await expect(cells).toHaveCount(100);
 
   for (let i = 0; i < 100; i++) {
+    // The AI replies on a timer, so wait for the turn to settle before reading the result.
+    await expect(page.getByText(/^(your move|done)$/)).toBeVisible();
     if (await playAgain.isVisible()) break;
-    await expect(page.getByText('your move', { exact: true })).toBeVisible();
     await cells.nth(i).click();
     if (i === 0) await expect(page.getByRole('log')).toContainText('ai: ');
   }
