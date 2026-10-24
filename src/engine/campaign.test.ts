@@ -87,6 +87,8 @@ describe('campaign', () => {
       { ...base, chapter: 2, results: { 2: 'won' } },
       { ...base, fights: 1 },
       { ...base, chapter: 4, stage: 'escalation' },
+      { ...base, chapter: 4, results: { 1: 'won', 3: 'lost' } },
+      { ...base, chapter: 3, results: { 1: 'won' } },
     ];
     for (const s of impossible) expect(isReachable(s)).toBe(false);
   });

@@ -110,6 +110,12 @@ export function isReachable(state: CampaignState): boolean {
   if (stage === 'match' && chapter === 4) return false;
   if (CHAPTER_4_STAGES.includes(stage) && chapter !== 4) return false;
   if (Object.keys(results).some((c) => Number(c) >= chapter)) return false;
+  // Shortcuts skip only a prefix: once a chapter was played, every later one up to now was too.
+  const played = Object.keys(results).map(Number);
+  const first = Math.min(...played);
+  for (let c = first; c < chapter; c++) {
+    if (results[c as 1 | 2 | 3] === undefined) return false;
+  }
   if (fights > 0 && chapter !== 4) return false;
   if (stage === 'escalation' && fights === 0) return false;
   if (stage === 'intro' && chapter === 4 && fights > 0) return false;
