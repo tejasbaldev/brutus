@@ -41,7 +41,7 @@ Fonts are system stacks; sound is synthesised with Web Audio, with no asset file
 
 ```
 src/
-  engine/       pure game logic: types, coord, fleet, placement, board, game reducer, rng
+  engine/       pure game logic: types, coord, fleet, placement, board, match reducer, rng
   ai/           AI tiers behind one interface; sees BoardView only, never the real Board
   story/        chapters.ts (ALL copy) + commentary picker
   persistence/  versioned localStorage save/load
@@ -67,8 +67,12 @@ createAi(tier, rng): Ai
   ship lengths. The AI can't cheat because the type system won't let it.
 - Ships are stored as placements (origin, orientation, length). Their cells are derived.
   Shots are the source of truth for hits.
-- The game is a pure reducer, `gameReducer(state, action) → state`. The UI drives it with
-  `useReducer`.
+- One battle is a pure reducer: `matchReducer(state, action) → state` in `engine/match.ts`
+  (modes `versus` | `coop`). `applyMatchAction` is the same transition but returns a typed
+  `Result`, for tests and for callers that need the error. The chapter flow (Phase 5) wraps
+  matches; it doesn't change them. The UI drives both with `useReducer`.
+- Fallible engine functions return `Result<T, E>` (`ok` / `err` in `engine/types.ts`) instead of
+  throwing. Throwing is reserved for programmer errors (e.g. `pick([])`).
 
 ## Rules
 
