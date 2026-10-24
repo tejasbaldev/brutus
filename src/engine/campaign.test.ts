@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   campaignReducer,
   createCampaign,
+  isReachable,
+  playedAll,
   matchSeed,
   previousResult,
   tierFor,
@@ -21,7 +23,7 @@ describe('campaign', () => {
     expect(createCampaign(7)).toEqual({
       chapter: 1,
       stage: 'intro',
-      results: [],
+      results: {},
       fights: 0,
       seed: 7,
     });
@@ -29,7 +31,11 @@ describe('campaign', () => {
 
   it('runs chapters 1-3 as interstitial then match, recording each outcome', () => {
     const s = run(createCampaign(1), go, won, go, lost, go, won);
-    expect(s).toMatchObject({ chapter: 4, stage: 'intro', results: ['won', 'lost', 'won'] });
+    expect(s).toMatchObject({
+      chapter: 4,
+      stage: 'intro',
+      results: { 1: 'won', 2: 'lost', 3: 'won' },
+    });
     expect(wins(s)).toBe(2);
   });
 
@@ -49,6 +55,42 @@ describe('campaign', () => {
     expect(previousResult(createCampaign(1))).toBeUndefined();
     expect(previousResult(run(createCampaign(1), go, lost))).toBe('lost');
     expect(previousResult(run(createCampaign(1), go, lost, go, won))).toBe('won');
+  });
+
+  it('keeps results by chapter when a shortcut skips earlier chapters', () => {
+    const s = run(createCampaign(1, 2), go, won);
+    expect(s.results).toEqual({ 2: 'won' });
+    expect(previousResult(s)).toBe('won');
+    expect(previousResult(createCampaign(1, 4))).toBeUndefined();
+    expect(playedAll(s)).toBe(false);
+    expect(playedAll(run(createCampaign(1), go, won, go, lost, go, lost))).toBe(true);
+  });
+
+  it('accepts every state normal play reaches, and rejects impossible ones', () => {
+    const fromStart = [createCampaign(1)];
+    for (const a of [go, won, go, lost, go, lost, go]) {
+      fromStart.push(campaignReducer(fromStart[fromStart.length - 1] ?? createCampaign(1), a));
+    }
+    const ch4 = run(createCampaign(1, 4), go);
+    const loop = [
+      run(ch4, { type: 'choose', choice: 'fight' }),
+      run(ch4, { type: 'choose', choice: 'fight' }, { type: 'interrupt' }),
+      run(ch4, { type: 'choose', choice: 'team-up' }, { type: 'resolve' }),
+    ];
+    for (const s of [...fromStart, ...loop, createCampaign(1, 3)]) {
+      expect(isReachable(s)).toBe(true);
+    }
+    const base = createCampaign(1);
+    const impossible: CampaignState[] = [
+      { ...base, stage: 'coop' },
+      { ...base, chapter: 4, stage: 'match' },
+      { ...base, chapter: 2, results: { 2: 'won' } },
+      { ...base, fights: 1 },
+      { ...base, chapter: 4, stage: 'escalation' },
+      { ...base, chapter: 4, results: { 1: 'won', 3: 'lost' } },
+      { ...base, chapter: 3, results: { 1: 'won' } },
+    ];
+    for (const s of impossible) expect(isReachable(s)).toBe(false);
   });
 
   it('offers the choice in chapter 4; keep fighting escalates and the choice returns', () => {

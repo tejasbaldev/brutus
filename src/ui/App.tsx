@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import type { AiTier } from '../ai';
 import {
   FIGHT_ROUNDS,
@@ -11,10 +11,13 @@ import {
 } from '../engine/campaign';
 import type { MatchMode, Winner } from '../engine/match';
 import { clearSave, loadCampaign, saveCampaign } from '../persistence/save';
+import { loadSettings, saveSettings } from '../persistence/settings';
 import { chapters, choice, coop, ending, fight, type Voice } from '../story/chapters';
 import { endingLines, escalationFor, introLines } from '../story/script';
+import { SoundToggle } from './components/SoundToggle';
 import { useMatch } from './hooks/useMatch';
 import { useReducedMotion } from './hooks/useReducedMotion';
+import { SoundContext } from './hooks/useSound';
 import { readDebugParams } from './params';
 import { randomSeed } from './random';
 import { BattleScreen } from './screens/BattleScreen';
@@ -26,11 +29,30 @@ import styles from './screens/Screen.module.css';
 const debug = readDebugParams();
 
 export function App() {
+  const [settings, setSettings] = useState(loadSettings);
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
+
+  return (
+    <SoundContext.Provider value={settings.sound}>
+      <SoundToggle
+        on={settings.sound}
+        onToggle={() => {
+          setSettings((s) => ({ ...s, sound: !s.sound }));
+        }}
+      />
+      <Campaign />
+    </SoundContext.Provider>
+  );
+}
+
+function Campaign() {
   const reducedMotion = useReducedMotion();
   const aiDelayMs = debug.aiDelayMs ?? (reducedMotion ? 250 : 650);
   const [saved, setSaved] = useState(() => (debug.chapter ? undefined : loadCampaign()));
   // null while on the title screen.
-  const [campaign, setCampaign] = useState<CampaignState | null>(null);
+  const [campaign, dispatch] = useReducer(sessionReducer, null);
 
   useEffect(() => {
     if (campaign) saveCampaign(campaign);
@@ -41,12 +63,15 @@ export function App() {
       <TitleScreen
         onBegin={() => {
           clearSave();
-          setCampaign(createCampaign(debug.seed ?? randomSeed(), debug.chapter));
+          dispatch({
+            type: 'start',
+            campaign: createCampaign(debug.seed ?? randomSeed(), debug.chapter),
+          });
         }}
         onContinue={
           saved
             ? () => {
-                setCampaign(saved);
+                dispatch({ type: 'start', campaign: saved });
               }
             : undefined
         }
@@ -54,9 +79,6 @@ export function App() {
     );
   }
 
-  const dispatch = (action: CampaignAction) => {
-    setCampaign((c) => c && campaignReducer(c, action));
-  };
   const proceed = () => {
     dispatch({ type: 'continue' });
   };
@@ -71,10 +93,22 @@ export function App() {
       onRestart={() => {
         clearSave();
         setSaved(undefined);
-        setCampaign(null);
+        dispatch({ type: 'quit' });
       }}
     />
   );
+}
+
+type SessionAction =
+  | CampaignAction
+  | { readonly type: 'start'; readonly campaign: CampaignState }
+  | { readonly type: 'quit' };
+
+/** The campaign, or null on the title screen. */
+function sessionReducer(state: CampaignState | null, action: SessionAction): CampaignState | null {
+  if (action.type === 'start') return action.campaign;
+  if (action.type === 'quit') return null;
+  return state && campaignReducer(state, action);
 }
 
 const stageKey = (c: CampaignState) => `${c.chapter}-${c.stage}-${c.fights}`;

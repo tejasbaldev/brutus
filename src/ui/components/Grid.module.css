@@ -9,6 +9,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+@media (max-width: 40rem) {
+  .compact {
+    --cell: min(1.6rem, calc((100vw - 2rem) / 11.5));
+  }
+}
+
 .columnLabels,
 .row {
   display: grid;
@@ -103,4 +109,30 @@
 
 .cell[data-overlay='invalid'] {
   background: color-mix(in srgb, var(--signal) 30%, transparent);
+}
+
+/* Motion only for hits and sinks, and only when the player hasn't asked for less. */
+@media (prefers-reduced-motion: no-preference) {
+  .cell[data-kind='hit'] > span {
+    display: inline-block;
+    animation: strike 420ms var(--ease);
+  }
+
+  .cell[data-kind='sunk'] {
+    animation: sink 900ms var(--ease);
+  }
+}
+
+@keyframes strike {
+  from {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+@keyframes sink {
+  from {
+    background: var(--fg);
+    border-color: var(--fg);
+  }
 }

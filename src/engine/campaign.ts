@@ -3,6 +3,7 @@
 
 export type Chapter = 1 | 2 | 3 | 4;
 export type ChapterResult = 'won' | 'lost';
+export type Results = Readonly<Partial<Record<1 | 2 | 3, ChapterResult>>>;
 
 /**
  * - intro: the chapter's interstitial
@@ -18,8 +19,11 @@ export type Stage = 'intro' | 'match' | 'choice' | 'fight' | 'escalation' | 'coo
 export interface CampaignState {
   readonly chapter: Chapter;
   readonly stage: Stage;
-  /** Outcomes of chapters 1-3, in order. Losing a chapter never ends the game. */
-  readonly results: readonly ChapterResult[];
+  /**
+   * Outcomes of chapters 1-3, by chapter. Losing a chapter never ends the game. Chapters skipped
+   * with the `?chapter=` shortcut have no entry.
+   */
+  readonly results: Results;
   /** How many times the player chose to keep fighting in chapter 4. */
   readonly fights: number;
   /** Root seed; every match derives its own from it (see `matchSeed`). */
@@ -39,7 +43,7 @@ export const FIGHT_ROUNDS = 12;
 export const CHAPTERS: readonly Chapter[] = [1, 2, 3, 4];
 
 export function createCampaign(seed: number, chapter: Chapter = 1): CampaignState {
-  return { chapter, stage: 'intro', results: [], fights: 0, seed: seed >>> 0 };
+  return { chapter, stage: 'intro', results: {}, fights: 0, seed: seed >>> 0 };
 }
 
 export function campaignReducer(state: CampaignState, action: CampaignAction): CampaignState {
@@ -52,8 +56,8 @@ export function campaignReducer(state: CampaignState, action: CampaignAction): C
       return state;
     case 'finish-match': {
       if (state.stage === 'fight') return escalate(state);
-      if (state.stage !== 'match') return state;
-      const results = [...state.results, action.result];
+      if (state.stage !== 'match' || state.chapter === 4) return state;
+      const results = { ...state.results, [state.chapter]: action.result };
       const chapter = nextChapter(state.chapter);
       return { ...state, chapter, stage: 'intro', results };
     }
@@ -82,11 +86,40 @@ export function tierFor(state: CampaignState): 1 | 2 | 3 {
 
 /** The previous chapter's outcome, which colours the next interstitial. */
 export function previousResult(state: CampaignState): ChapterResult | undefined {
-  return state.results[state.chapter - 2];
+  const previous = state.chapter - 1;
+  return previous === 1 || previous === 2 || previous === 3 ? state.results[previous] : undefined;
 }
 
 export function wins(state: CampaignState): number {
-  return state.results.filter((r) => r === 'won').length;
+  return Object.values(state.results).filter((r) => r === 'won').length;
+}
+
+/** True once chapters 1-3 have all been played (not skipped with a shortcut). */
+export function playedAll(state: CampaignState): boolean {
+  return ([1, 2, 3] as const).every((c) => state.results[c] !== undefined);
+}
+
+const CHAPTER_4_STAGES: readonly Stage[] = ['choice', 'fight', 'escalation', 'coop', 'ending'];
+
+/**
+ * Whether normal play (or a `?chapter=` shortcut) can produce this state. Used to reject
+ * tampered or corrupted saves.
+ */
+export function isReachable(state: CampaignState): boolean {
+  const { chapter, stage, results, fights } = state;
+  if (stage === 'match' && chapter === 4) return false;
+  if (CHAPTER_4_STAGES.includes(stage) && chapter !== 4) return false;
+  if (Object.keys(results).some((c) => Number(c) >= chapter)) return false;
+  // Shortcuts skip only a prefix: once a chapter was played, every later one up to now was too.
+  const played = Object.keys(results).map(Number);
+  const first = Math.min(...played);
+  for (let c = first; c < chapter; c++) {
+    if (results[c as 1 | 2 | 3] === undefined) return false;
+  }
+  if (fights > 0 && chapter !== 4) return false;
+  if (stage === 'escalation' && fights === 0) return false;
+  if (stage === 'intro' && chapter === 4 && fights > 0) return false;
+  return true;
 }
 
 /** A distinct, reproducible seed for each match in the campaign. */

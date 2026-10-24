@@ -1,10 +1,10 @@
 // Versioned localStorage saves. Anything unknown or malformed is discarded, never trusted.
 
-import { CHAPTERS, type CampaignState, type Stage } from '../engine/campaign';
+import { CHAPTERS, isReachable, type CampaignState, type Stage } from '../engine/campaign';
 
 export const SAVE_KEY = 'brutus:save';
 /** Bump on any change to the shape of `CampaignState`. Older saves are then discarded. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export type SaveStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -18,7 +18,8 @@ const STAGES: readonly Stage[] = [
   'ending',
 ];
 
-const defaultStorage = (): SaveStorage | undefined => {
+/** `localStorage`, or undefined where it is blocked. */
+export const browserStorage = (): SaveStorage | undefined => {
   try {
     return window.localStorage;
   } catch {
@@ -26,7 +27,7 @@ const defaultStorage = (): SaveStorage | undefined => {
   }
 };
 
-export function loadCampaign(storage = defaultStorage()): CampaignState | undefined {
+export function loadCampaign(storage = browserStorage()): CampaignState | undefined {
   try {
     const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return undefined;
@@ -41,7 +42,7 @@ export function loadCampaign(storage = defaultStorage()): CampaignState | undefi
   return undefined;
 }
 
-export function saveCampaign(campaign: CampaignState, storage = defaultStorage()): void {
+export function saveCampaign(campaign: CampaignState, storage = browserStorage()): void {
   try {
     storage?.setItem(SAVE_KEY, JSON.stringify({ version: SAVE_VERSION, campaign }));
   } catch {
@@ -49,7 +50,7 @@ export function saveCampaign(campaign: CampaignState, storage = defaultStorage()
   }
 }
 
-export function clearSave(storage = defaultStorage()): void {
+export function clearSave(storage = browserStorage()): void {
   try {
     storage?.removeItem(SAVE_KEY);
   } catch {
@@ -65,14 +66,15 @@ const isCount = (x: unknown): x is number => Number.isInteger(x) && (x as number
 function isCampaign(x: unknown): x is CampaignState {
   if (!isRecord(x)) return false;
   const { chapter, stage, results, fights, seed } = x;
-  return (
+  const shapeOk =
     CHAPTERS.some((c) => c === chapter) &&
     STAGES.some((s) => s === stage) &&
-    Array.isArray(results) &&
-    results.length <= 3 &&
-    results.every((r) => r === 'won' || r === 'lost') &&
+    isRecord(results) &&
+    Object.entries(results).every(
+      ([c, r]) => ['1', '2', '3'].includes(c) && (r === 'won' || r === 'lost'),
+    ) &&
     isCount(fights) &&
     isCount(seed) &&
-    seed <= 0xffffffff
-  );
+    seed <= 0xffffffff;
+  return shapeOk && isReachable(x as unknown as CampaignState);
 }

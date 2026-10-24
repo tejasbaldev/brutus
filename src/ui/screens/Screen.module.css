@@ -163,6 +163,20 @@
   padding-top: max(var(--space-5), 18vh);
 }
 
+/* Chapter transitions: each story screen settles in. */
+@media (prefers-reduced-motion: no-preference) {
+  .story {
+    animation: enter 700ms var(--ease) both;
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
 .log .comment {
   margin-top: var(--space-2);
 }

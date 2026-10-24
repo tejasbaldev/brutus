@@ -27,6 +27,8 @@ interface GridProps {
   readonly onCommandKey?: ((key: string) => boolean) | undefined;
   /** Cells that can't be activated right now (e.g. already fired at). */
   readonly isDisabled?: ((c: Coord) => boolean) | undefined;
+  /** Smaller cells on narrow screens (your own board in battle). */
+  readonly compact?: boolean;
 }
 
 const GLYPH: Record<CellKind, string> = { water: '', ship: '', miss: '·', hit: '×', sunk: '×' };
@@ -40,6 +42,7 @@ export function Grid({
   onActivate,
   onCommandKey,
   isDisabled,
+  compact = false,
 }: GridProps) {
   const cells = useRef(new Map<string, HTMLButtonElement>());
   const columns = Array.from({ length: size }, (_, i) => i);
@@ -70,7 +73,7 @@ export function Grid({
   };
 
   return (
-    <div className={styles.frame}>
+    <div className={compact ? `${styles.frame} ${styles.compact}` : styles.frame}>
       <div className={styles.columnLabels} aria-hidden="true">
         <span />
         {columns.map((c) => (
