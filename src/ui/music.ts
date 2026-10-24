@@ -274,8 +274,11 @@ export function createMusic(): Music {
   const tick = () => {
     if (!ctx || !master) return;
     const voice: Voice = { ctx, out: master, rng };
+    // A background tab throttles timers; when the clock has run past us, skip the missed bars
+    // instead of stacking them all at once.
+    if (nextAt < ctx.currentTime) nextAt = ctx.currentTime + 0.05;
     while (nextAt < ctx.currentTime + LOOKAHEAD_S) {
-      nextAt += scheduleBar(voice, mood, bar, Math.max(nextAt, ctx.currentTime));
+      nextAt += scheduleBar(voice, mood, bar, nextAt);
       bar++;
     }
   };
