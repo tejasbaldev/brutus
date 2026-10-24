@@ -19,13 +19,15 @@ interface MoodSpec {
   readonly cutoff: number;
   /** Chance per bar of a high, bell-like note. */
   readonly sparkle: number;
+  /** Chance per beat of a plucked chord tone: the slow melody over the pads. */
+  readonly arp: number;
 }
 
-const A2 = 45;
+const A3 = 57;
 
 export const MOODS: Record<Mood, MoodSpec> = {
   title: {
-    root: A2,
+    root: A3,
     chords: [
       [0, 7, 15, 19],
       [-4, 3, 12, 19],
@@ -35,10 +37,11 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 54,
     pulse: 0,
     cutoff: 800,
+    arp: 0.45,
     sparkle: 0.25,
   },
   ch1: {
-    root: A2,
+    root: A3,
     chords: [
       [0, 7, 15, 19],
       [-4, 3, 12, 19],
@@ -48,10 +51,11 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 58,
     pulse: 0.05,
     cutoff: 900,
+    arp: 0.5,
     sparkle: 0.3,
   },
   ch2: {
-    root: A2,
+    root: A3,
     chords: [
       [0, 7, 15, 22],
       [-2, 5, 10, 17],
@@ -61,10 +65,11 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 62,
     pulse: 0.07,
     cutoff: 1050,
+    arp: 0.6,
     sparkle: 0.3,
   },
   ch3: {
-    root: A2,
+    root: A3,
     chords: [
       [0, 6, 10, 15],
       [-2, 5, 11, 15],
@@ -74,10 +79,11 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 68,
     pulse: 0.1,
     cutoff: 1300,
+    arp: 0.7,
     sparkle: 0.2,
   },
   ch4: {
-    root: A2,
+    root: A3,
     chords: [
       [0, 6, 10, 13],
       [-1, 5, 11, 15],
@@ -87,10 +93,11 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 76,
     pulse: 0.13,
     cutoff: 1600,
+    arp: 0.85,
     sparkle: 0.15,
   },
   coop: {
-    root: A2,
+    root: A3,
     chords: [
       [0, 7, 14, 19],
       [-2, 5, 12, 19],
@@ -100,10 +107,11 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 62,
     pulse: 0.06,
     cutoff: 1100,
+    arp: 0.6,
     sparkle: 0.35,
   },
   ending: {
-    root: A2,
+    root: A3,
     chords: [
       [3, 10, 15, 22],
       [0, 7, 15, 19],
@@ -113,6 +121,7 @@ export const MOODS: Record<Mood, MoodSpec> = {
     bpm: 50,
     pulse: 0,
     cutoff: 900,
+    arp: 0.4,
     sparkle: 0.4,
   },
 };
@@ -164,6 +173,33 @@ function pulse({ ctx, out }: Voice, at: number, gain: number) {
   osc.stop(at + 0.5);
 }
 
+function pluck({ ctx, out }: Voice, midi: number, at: number) {
+  const osc = ctx.createOscillator();
+  const amp = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = hz(midi);
+  amp.gain.setValueAtTime(0.0001, at);
+  amp.gain.exponentialRampToValueAtTime(0.05, at + 0.02);
+  amp.gain.exponentialRampToValueAtTime(0.0001, at + 1.4);
+  osc.connect(amp).connect(out);
+  osc.start(at);
+  osc.stop(at + 1.5);
+}
+
+function bass({ ctx, out }: Voice, midi: number, at: number, length: number) {
+  const osc = ctx.createOscillator();
+  const amp = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = hz(midi);
+  amp.gain.setValueAtTime(0.0001, at);
+  amp.gain.exponentialRampToValueAtTime(0.06, at + length * 0.3);
+  amp.gain.setValueAtTime(0.06, at + length * 0.7);
+  amp.gain.exponentialRampToValueAtTime(0.0001, at + length);
+  osc.connect(amp).connect(out);
+  osc.start(at);
+  osc.stop(at + length + 0.1);
+}
+
 function sparkle({ ctx, out }: Voice, midi: number, at: number) {
   const osc = ctx.createOscillator();
   const amp = ctx.createGain();
@@ -185,7 +221,18 @@ export function scheduleBar(voice: Voice, mood: Mood, n: number, at: number): nu
   const chord = spec.chords[Math.floor(n / BARS_PER_CHORD) % spec.chords.length] ?? [];
   if (n % BARS_PER_CHORD === 0) {
     const length = bar * BARS_PER_CHORD + beat;
-    for (const offset of chord) pad(voice, spec.root + offset, at, length, spec.cutoff);
+    // Alternate chords breathe a little brighter.
+    const cutoff = spec.cutoff * (n % (BARS_PER_CHORD * 2) === 0 ? 1 : 1.25);
+    for (const offset of chord) pad(voice, spec.root + offset, at, length, cutoff);
+    bass(voice, spec.root - 12 + (chord[0] ?? 0), at, length);
+  }
+  // The melody: chord tones an octave or two up, plucked on some beats.
+  for (let b = 0; b < 4; b++) {
+    if (voice.rng() < spec.arp) {
+      const offset = pick(voice.rng, chord) + (voice.rng() < 0.6 ? 12 : 24);
+      const swing = voice.rng() < 0.3 ? beat / 2 : 0;
+      pluck(voice, spec.root + offset, at + beat * b + swing);
+    }
   }
   if (spec.pulse > 0) {
     pulse(voice, at, spec.pulse);
@@ -242,7 +289,7 @@ export function createMusic(): Music {
       bar = 0;
       master = ctx.createGain();
       master.gain.setValueAtTime(0.0001, ctx.currentTime);
-      master.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + 2.5);
+      master.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + 2.5);
       master.connect(ctx.destination);
       nextAt = ctx.currentTime + 0.1;
       timer = window.setInterval(tick, TICK_MS);
