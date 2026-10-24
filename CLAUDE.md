@@ -109,6 +109,9 @@ npm run test:e2e      # Playwright (builds + previews)
 npm run check         # everything CI runs except e2e
 ```
 
+For review and e2e, the URL accepts `?tier=1|2|3&seed=N&delay=MS` (AI tier, game seed, AI
+pause). Players never need them.
+
 Before declaring any work done, run `npm run check` (and `npm run test:e2e` for UI changes).
 
 ## Workflow
