@@ -66,7 +66,7 @@ describe('difficulty ordering (benchmark)', () => {
     expect(t2).toBeLessThan(t1 - 15);
     expect(t3).toBeLessThan(t2 - 3);
     expect(t3).toBeLessThan(60);
-  });
+  }, 30_000); // 600 full games: deliberately slow, so it gets an explicit budget.
 });
 
 describe('tier 1', () => {

@@ -1,4 +1,4 @@
-import { allCoords, coord } from '../engine/coord';
+import { allCoords } from '../engine/coord';
 import { pick, type Rng } from '../engine/rng';
 import type { Coord } from '../engine/types';
 import type { Ai, BoardView } from './types';
@@ -41,28 +41,44 @@ export function createDensityAi(rng: Rng): Ai {
  * Only unknown cells score; everything else is 0. Also drives the co-op hint overlay.
  */
 export function densityMap(view: BoardView): number[][] {
-  const map = Array.from({ length: view.size }, () => Array.from({ length: view.size }, () => 0));
+  const { size } = view;
+  // Flatten once: this runs every AI move, so the inner loops avoid allocating.
+  const state = new Uint8Array(size * size); // 0 unknown, 1 open hit, 2 blocked
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const cell = view.cells[r]?.[c];
+      state[r * size + c] = cell === 'unknown' ? 0 : cell === 'hit' ? 1 : 2;
+    }
+  }
 
+  const scores = new Float64Array(size * size);
   for (const length of view.remainingShipLengths) {
-    for (const origin of allCoords(view.size)) {
-      for (const [dr, dc] of [
-        [0, 1],
-        [1, 0],
-      ] as const) {
-        const cells = Array.from({ length }, (_, i) =>
-          coord(origin.row + dr * i, origin.col + dc * i),
-        );
-        const states = cells.map((c) => cellAt(view, c));
-        if (states.some((s) => s === undefined || s === 'miss' || s === 'sunk')) continue;
-
-        const hits = states.filter((s) => s === 'hit').length;
-        const weight = HIT_WEIGHT ** hits;
-        cells.forEach((c, i) => {
-          const row = map[c.row];
-          if (row && states[i] === 'unknown') row[c.col] = (row[c.col] ?? 0) + weight;
-        });
+    for (const step of [1, size]) {
+      // step 1 walks along a row (horizontal), step `size` down a column (vertical).
+      const rows = step === 1 ? size : size - length + 1;
+      const cols = step === 1 ? size - length + 1 : size;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const start = r * size + c;
+          let hits = 0;
+          let blocked = false;
+          for (let i = 0; i < length && !blocked; i++) {
+            const s = state[start + i * step];
+            if (s === 2) blocked = true;
+            else if (s === 1) hits++;
+          }
+          if (blocked) continue;
+          const weight = HIT_WEIGHT ** hits;
+          for (let i = 0; i < length; i++) {
+            const at = start + i * step;
+            if (state[at] === 0) scores[at] = (scores[at] ?? 0) + weight;
+          }
+        }
       }
     }
   }
-  return map;
+
+  return Array.from({ length: size }, (_, r) =>
+    Array.from(scores.subarray(r * size, (r + 1) * size)),
+  );
 }
