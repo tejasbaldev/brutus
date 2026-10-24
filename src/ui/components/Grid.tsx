@@ -31,7 +31,7 @@ interface GridProps {
   readonly compact?: boolean;
 }
 
-const GLYPH: Record<CellKind, string> = { water: '', ship: '', miss: '·', hit: '×', sunk: '×' };
+const GLYPH: Record<CellKind, string> = { water: '', ship: '', miss: '', hit: '×', sunk: '×' };
 
 export function Grid({
   label,

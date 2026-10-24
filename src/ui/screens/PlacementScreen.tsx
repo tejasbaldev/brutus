@@ -20,6 +20,7 @@ import styles from './Screen.module.css';
 interface Props {
   readonly state: MatchState;
   readonly dispatch: Dispatch<MatchAction>;
+  readonly eyebrow: string;
 }
 
 const ERROR_TEXT: Record<PlacementError, string> = {
@@ -31,7 +32,7 @@ const ERROR_TEXT: Record<PlacementError, string> = {
 
 const ORIENTATION_TEXT: Record<Orientation, string> = { h: 'across', v: 'down' };
 
-export function PlacementScreen({ state, dispatch }: Props) {
+export function PlacementScreen({ state, dispatch, eyebrow }: Props) {
   const heading = useFocusOnMount<HTMLHeadingElement>();
   const [selected, setSelected] = useState<ShipId | null>(state.fleet[0]?.id ?? null);
   const [orientation, setOrientation] = useState<Orientation>('h');
@@ -102,7 +103,7 @@ export function PlacementScreen({ state, dispatch }: Props) {
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>~/brutus $ plan</p>
+        <p className={styles.eyebrow}>{eyebrow}</p>
         <h1 ref={heading} tabIndex={-1}>
           {copy.heading}
         </h1>
@@ -113,6 +114,9 @@ export function PlacementScreen({ state, dispatch }: Props) {
         <section aria-labelledby="own-board-heading">
           <h2 id="own-board-heading" className={styles.boardHeading}>
             Your work
+            <small>
+              {state.placing.length} of {state.fleet.length} placed
+            </small>
           </h2>
           <Grid
             label="Your board"
@@ -124,8 +128,11 @@ export function PlacementScreen({ state, dispatch }: Props) {
             onCommandKey={onCommandKey}
           />
           <p className={styles.hint}>
-            Arrow keys to move · <kbd>R</kbd> to rotate · <kbd>Enter</kbd> to place · <kbd>Esc</kbd>{' '}
-            to deselect
+            <kbd>←</kbd>
+            <kbd>↑</kbd>
+            <kbd>→</kbd>
+            <kbd>↓</kbd> move · <kbd>R</kbd> rotate · <kbd>Enter</kbd> place · <kbd>Esc</kbd>{' '}
+            deselect
           </p>
         </section>
 

@@ -1,29 +1,37 @@
 .frame {
-  --cell: min(2.25rem, calc((100vw - 2rem) / 11.5));
-  --line: color-mix(in srgb, var(--muted) 35%, transparent);
-  display: inline-flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  --cell: clamp(1.75rem, 3.1vw, 2.75rem);
+  --labels: calc(var(--cell) * 0.7);
+  display: inline-grid;
+  gap: 0;
   font-family: var(--font-mono);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 40rem) {
+  .frame {
+    --cell: calc((100vw - 2 * var(--gutter) - 1rem) / 10);
+  }
+
   .compact {
-    --cell: min(1.6rem, calc((100vw - 2rem) / 11.5));
+    --cell: min(1.6rem, calc((100vw - 2 * var(--gutter) - 1rem) / 10));
   }
 }
 
 .columnLabels,
 .row {
   display: grid;
-  grid-template-columns: calc(var(--cell) * 0.6) repeat(10, var(--cell));
+  grid-template-columns: var(--labels) repeat(10, var(--cell));
+}
+
+.columnLabels {
+  margin-bottom: var(--space-1);
 }
 
 .columnLabels,
 .rowLabel {
-  font-size: 0.7rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
   color: var(--muted);
   text-align: center;
   align-self: center;
@@ -35,19 +43,20 @@
 }
 
 .cell {
+  position: relative;
   display: grid;
   place-items: center;
   width: var(--cell);
   height: var(--cell);
   margin: 0;
   padding: 0;
-  border: 0 solid var(--line);
+  border: 0 solid var(--hairline);
   border-width: 0 1px 1px 0;
   border-radius: 0;
   background: transparent;
   color: var(--fg);
   font: inherit;
-  font-size: 1.1rem;
+  font-size: calc(var(--cell) * 0.5);
   line-height: 1;
   cursor: pointer;
   /* Backgrounds change instantly so the placement preview tracks the cursor. */
@@ -63,38 +72,70 @@
   border-left-width: 1px;
 }
 
+.row:first-child .cell,
+.row:last-child .cell,
+.rowLabel + .cell,
+.cell:last-child {
+  border-color: var(--hairline);
+}
+
+.row:first-child .cell {
+  border-top-color: var(--hairline-strong);
+}
+
+.row:last-child .cell {
+  border-bottom-color: var(--hairline-strong);
+}
+
+.rowLabel + .cell {
+  border-left-color: var(--hairline-strong);
+}
+
+.cell:last-child {
+  border-right-color: var(--hairline-strong);
+}
+
 .cell[aria-disabled='true'] {
   cursor: default;
 }
 
 .cell:focus-visible {
-  position: relative;
   z-index: 1;
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
+  outline: 1.5px solid var(--accent);
+  outline-offset: -1.5px;
 }
 
 @media (hover: hover) {
   .cell:not([aria-disabled='true']):hover {
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    background: color-mix(in srgb, var(--fg) 7%, transparent);
   }
 }
 
 /* Co-op hint: the AI's density map, kept faint so it suggests rather than plays. */
 .cell[data-heat] {
-  background: color-mix(in srgb, var(--accent) calc(var(--heat) * 30%), transparent);
+  background: color-mix(in srgb, var(--accent) calc(var(--heat) * 32%), transparent);
 }
 
 .cell[data-kind='ship'] {
-  background: color-mix(in srgb, var(--fg) 16%, transparent);
+  background: color-mix(in srgb, var(--fg) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 20%, transparent);
 }
 
-.cell[data-kind='miss'] {
-  color: var(--muted);
+.cell[data-kind='miss']::before {
+  content: '';
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--muted);
 }
 
 .cell[data-kind='hit'] {
   color: var(--signal);
+}
+
+.cell[data-kind='hit'][data-overlay],
+.cell[data-kind='hit'] {
+  background: color-mix(in srgb, var(--signal) 10%, transparent);
 }
 
 .cell[data-kind='sunk'] {
@@ -104,11 +145,13 @@
 }
 
 .cell[data-overlay='preview'] {
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
 .cell[data-overlay='invalid'] {
-  background: color-mix(in srgb, var(--signal) 30%, transparent);
+  background: color-mix(in srgb, var(--signal) 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--signal) 60%, transparent);
 }
 
 /* Motion only for hits and sinks, and only when the player hasn't asked for less. */

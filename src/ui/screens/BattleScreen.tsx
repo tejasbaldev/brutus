@@ -16,6 +16,7 @@ import styles from './Screen.module.css';
 interface Props {
   readonly state: MatchState;
   readonly dispatch: Dispatch<MatchAction>;
+  readonly eyebrow?: string;
   readonly heading?: string;
   /** The AI's commentary voice. Omit for no commentary. */
   readonly voice?: Voice | undefined;
@@ -36,6 +37,8 @@ const fleetStatus = (board: Board): FleetEntry[] =>
     status: isSunk(board, s.id) ? 'sunk' : 'afloat',
   }));
 
+const afloat = (board: Board): number => board.ships.filter((s) => !isSunk(board, s.id)).length;
+
 /** The AI's density map, scaled to 0-1, for the co-op hint. */
 function heatMap(state: MatchState): number[][] {
   const map = densityMap(viewFor(state, 'player'));
@@ -46,6 +49,7 @@ function heatMap(state: MatchState): number[][] {
 export function BattleScreen({
   state,
   dispatch,
+  eyebrow = '',
   heading = 'Battle',
   voice,
   commentSeed = 0,
@@ -86,24 +90,32 @@ export function BattleScreen({
 
   return (
     <main className={styles.screen}>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>~/brutus $ run</p>
-        <h1 ref={h1} tabIndex={-1}>
-          {heading}
-        </h1>
-        <p className={styles.turn} aria-hidden="true">
-          {over || interrupted ? '> done' : yourTurn ? '> your move' : '> ai is thinking…'}
-        </p>
+      <header className={`${styles.header} ${styles.split}`}>
+        <div>
+          <p className={styles.eyebrow}>{eyebrow}</p>
+          <h1 ref={h1} tabIndex={-1}>
+            {heading}
+          </h1>
+        </div>
+        <div className={styles.console}>
+          <p className={styles.turn} data-live={yourTurn} aria-hidden="true">
+            {over || interrupted ? 'done' : yourTurn ? 'your move' : 'ai is thinking…'}
+          </p>
+          <div className={styles.log} role="log" aria-label="Shots">
+            {recent.length === 0 ? (
+              <p>{coop ? coopCopy.opening : 'Your move. Pick a cell on their board.'}</p>
+            ) : (
+              recent.map(({ turn, index }) => <p key={index}>{describeTurn(turn)}</p>)
+            )}
+            {comment && (
+              <p className={styles.comment}>
+                <span className={styles.commentWho}>ai: </span>
+                {comment}
+              </p>
+            )}
+          </div>
+        </div>
       </header>
-
-      <div className={styles.log} role="log" aria-label="Shots">
-        {recent.length === 0 ? (
-          <p>{coop ? coopCopy.opening : 'Your move. Pick a cell on their board.'}</p>
-        ) : (
-          recent.map(({ turn, index }) => <p key={index}>{describeTurn(turn)}</p>)
-        )}
-        {comment && <p className={styles.comment}>ai: {comment}</p>}
-      </div>
 
       {panel !== null && (
         <ResultPanel
@@ -119,6 +131,7 @@ export function BattleScreen({
         <section aria-labelledby="target-heading" className={styles.boardColumn}>
           <h2 id="target-heading" className={styles.boardHeading}>
             {coop ? coopCopy.board : 'Their board'}
+            <small>{afloat(state.target)} afloat</small>
           </h2>
           <Grid
             label={coop ? coopCopy.board : 'Their board'}
@@ -146,7 +159,7 @@ export function BattleScreen({
                   setShowHint((v) => !v);
                 }}
               >
-                {showHint ? 'Hide hint' : 'Show the AI’s hint'}
+                {showHint ? 'Hide hint' : 'Show hint'}
               </button>
             </p>
           )}
@@ -160,6 +173,7 @@ export function BattleScreen({
           <section aria-labelledby="own-heading" className={styles.boardColumn}>
             <h2 id="own-heading" className={styles.boardHeading}>
               Your work
+              <small>{afloat(state.player)} afloat</small>
             </h2>
             <Grid
               label="Your board"

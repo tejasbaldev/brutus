@@ -88,7 +88,7 @@ createAi(tier, rng): Ai
    visible `:focus-visible`, an ARIA label on every cell (e.g. "Row C, column 5, hit"), a polite
    live region for shot results, and `prefers-reduced-motion` respected (the typewriter becomes
    instant and animations are dropped).
-6. **Visual restraint:** two typefaces (`--font-mono`, `--font-sans`), five colours as CSS
+6. **Visual restraint:** two typefaces (`--font-display`, a serif for headings and story lines; `--font-mono` for everything else; both self-hosted in `public/fonts`), five colours as CSS
    variables in `src/ui/styles/tokens.css` (`--bg --fg --muted --accent --signal`). No new
    colours without updating tokens. No gradients, no emoji UI. Motion only for hit, sink, and
    chapter transitions.
