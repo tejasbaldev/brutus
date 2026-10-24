@@ -4,7 +4,8 @@ import type { ShotResult } from '../engine/types';
 
 let context: AudioContext | undefined;
 
-function audio(): AudioContext | undefined {
+/** The page's one AudioContext, created on first use (after a user gesture). */
+export function audioContext(): AudioContext | undefined {
   try {
     context ??= new AudioContext();
     if (context.state === 'suspended') void context.resume();
@@ -48,7 +49,7 @@ const CUES: Record<ShotResult['kind'], readonly Tone[]> = {
 };
 
 export function playShot(result: ShotResult): void {
-  const ctx = audio();
+  const ctx = audioContext();
   if (!ctx) return;
   for (const t of CUES[result.kind]) tone(ctx, t);
 }
