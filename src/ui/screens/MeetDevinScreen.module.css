@@ -56,19 +56,6 @@
   max-width: 40rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .card {
-    animation: rise 500ms var(--ease) both;
-  }
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-}
-
 .name {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 6vw, 4rem);

@@ -53,7 +53,7 @@ export function MeetDevinScreen({ onRestart }: { readonly onRestart: () => void 
           </ol>
         </nav>
 
-        <section className={tour.card} aria-live="polite" aria-label={steps[step]} key={step}>
+        <section className={tour.card} aria-live="polite" aria-label={steps[step]}>
           <p className={styles.label}>{card ? card.kind : copy.cta.kind}</p>
           <h2 className={tour.name}>{card ? card.name : copy.cta.name}</h2>
           <p className={tour.body}>{card ? card.body : copy.cta.body}</p>
