@@ -74,6 +74,11 @@
   }
 }
 
+/* Co-op hint: the AI's density map, kept faint so it suggests rather than plays. */
+.cell[data-heat] {
+  background: color-mix(in srgb, var(--accent) calc(var(--heat) * 30%), transparent);
+}
+
 .cell[data-kind='ship'] {
   background: color-mix(in srgb, var(--fg) 16%, transparent);
 }

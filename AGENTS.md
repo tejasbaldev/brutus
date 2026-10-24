@@ -71,8 +71,8 @@ createAi(tier, rng): Ai
   Shots are the source of truth for hits.
 - One battle is a pure reducer: `matchReducer(state, action) → state` in `engine/match.ts`
   (modes `versus` | `coop`). `applyMatchAction` is the same transition but returns a typed
-  `Result`, for tests and for callers that need the error. The chapter flow (Phase 5) wraps
-  matches; it doesn't change them. The UI drives both with `useReducer`.
+  `Result`, for tests and for callers that need the error. The chapter flow
+  (`engine/campaign.ts`, `campaignReducer`) wraps matches; it doesn't change them. The UI drives both with `useReducer`.
 - Fallible engine functions return `Result<T, E>` (`ok` / `err` in `engine/types.ts`) instead of
   throwing. Throwing is reserved for programmer errors (e.g. `pick([])`).
 
@@ -109,8 +109,8 @@ npm run test:e2e      # Playwright (builds + previews)
 npm run check         # everything CI runs except e2e
 ```
 
-For review and e2e, the URL accepts `?tier=1|2|3&seed=N&delay=MS` (AI tier, game seed, AI
-pause). Players never need them.
+For review and e2e, the URL accepts `?chapter=1-4&tier=1|2|3&seed=N&delay=MS` (start a new
+campaign at a chapter, override the AI tier, campaign seed, AI pause). Players never need them.
 
 Before declaring any work done, run `npm run check` (and `npm run test:e2e` for UI changes).
 

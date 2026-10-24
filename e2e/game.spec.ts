@@ -6,6 +6,8 @@ const URL = './?tier=1&seed=1&delay=0';
 const begin = async (page: Page, url = URL) => {
   await page.goto(url);
   await page.getByRole('button', { name: 'Begin' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Standup');
+  await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Lay out your work');
 };
 
@@ -53,13 +55,15 @@ test('rotates and rejects placements that do not fit', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Start' })).toBeDisabled();
 });
 
-test('plays a full game to a result, and can play again', async ({ page }) => {
+test('plays chapter 1 to a result, with commentary, and moves on to chapter 2', async ({
+  page,
+}) => {
   await begin(page);
   await page.getByRole('button', { name: 'Shuffle' }).click();
   await page.getByRole('button', { name: 'Start' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Battle');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Standup');
 
-  const playAgain = page.getByRole('button', { name: 'Play again' });
+  const playAgain = page.getByRole('button', { name: 'Continue' });
   const cells = theirBoard(page).getByRole('gridcell');
   await expect(cells).toHaveCount(100);
 
@@ -67,12 +71,13 @@ test('plays a full game to a result, and can play again', async ({ page }) => {
     if (await playAgain.isVisible()) break;
     await expect(page.getByText('> your move')).toBeVisible();
     await cells.nth(i).click();
+    if (i === 0) await expect(page.getByRole('log')).toContainText('ai: ');
   }
 
   await expect(playAgain).toBeVisible();
   await expect(playAgain).toBeFocused();
   await playAgain.click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Lay out your work');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('The 2am commit');
 });
 
 test('cells announce coordinates and state; fired cells are disabled', async ({ page }) => {
