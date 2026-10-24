@@ -1,0 +1,160 @@
+.screen {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3);
+}
+
+.narrow {
+  max-width: 40rem;
+}
+
+.header {
+  margin-bottom: var(--space-4);
+}
+
+.header h1:focus {
+  outline: none;
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--accent);
+}
+
+.lede {
+  max-width: 34rem;
+  margin: var(--space-3) 0 0;
+  color: var(--muted);
+}
+
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.side {
+  flex: 1 1 16rem;
+  max-width: 24rem;
+}
+
+.boards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+}
+
+.boardColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.boardHeading {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.hint {
+  margin: var(--space-3) 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.hint kbd {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--fg);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.primary,
+.secondary {
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition:
+    background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease);
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.primary:disabled {
+  border-color: var(--muted);
+  background: transparent;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.secondary {
+  background: transparent;
+  color: var(--fg);
+  border-color: color-mix(in srgb, var(--muted) 60%, transparent);
+}
+
+.secondary:hover {
+  border-color: var(--fg);
+}
+
+.status,
+.log,
+.turn {
+  min-height: 1.6em;
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.status,
+.turn {
+  color: var(--muted);
+}
+
+.log {
+  min-height: 3.2em;
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+}
+
+.log p {
+  margin: 0;
+}
+
+.log p:last-child {
+  color: var(--fg);
+}
+
+.over {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) 0;
+  border-block: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+}
+
+.verdict {
+  margin: 0;
+  font-size: 1.25rem;
+}
