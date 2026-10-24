@@ -9,7 +9,7 @@ async function fireUntilDone(page: Page, board: string) {
   const cells = page.getByRole('grid', { name: board }).getByRole('gridcell');
   for (let i = 0; i < 100; i++) {
     if (await done.isVisible()) break;
-    await expect(page.getByText(/> (your move|done)/)).toBeVisible();
+    await expect(page.getByText(/^(your move|done)$/)).toBeVisible();
     if (await done.isVisible()) break;
     if ((await cells.nth(i).getAttribute('aria-disabled')) === 'true') continue;
     await cells.nth(i).click();

@@ -9,9 +9,10 @@ interface Props {
 
 export function TitleScreen({ onBegin, onContinue }: Props) {
   return (
-    <main className={`${styles.screen} ${styles.narrow}`}>
-      <p className={styles.eyebrow}>~/brutus $</p>
+    <main className={`${styles.screen} ${styles.title}`}>
+      <p className={styles.eyebrow}>A game of Battleship</p>
       <h1>{title.heading}</h1>
+      <div className={styles.rule} aria-hidden="true" />
       <p className={styles.lede}>{title.lede}</p>
       <div className={styles.actions}>
         {onContinue ? (

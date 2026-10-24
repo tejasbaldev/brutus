@@ -69,7 +69,7 @@ test('plays chapter 1 to a result, with commentary, and moves on to chapter 2', 
 
   for (let i = 0; i < 100; i++) {
     if (await playAgain.isVisible()) break;
-    await expect(page.getByText('> your move')).toBeVisible();
+    await expect(page.getByText('your move', { exact: true })).toBeVisible();
     await cells.nth(i).click();
     if (i === 0) await expect(page.getByRole('log')).toContainText('ai: ');
   }

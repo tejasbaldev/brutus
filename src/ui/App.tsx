@@ -14,7 +14,7 @@ import { clearSave, loadCampaign, saveCampaign } from '../persistence/save';
 import { loadSettings, saveSettings } from '../persistence/settings';
 import { chapters, choice, coop, ending, fight, type Voice } from '../story/chapters';
 import { endingLines, escalationFor, introLines } from '../story/script';
-import { SoundToggle } from './components/SoundToggle';
+import { TopBar } from './components/TopBar';
 import { useMatch } from './hooks/useMatch';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { SoundContext } from './hooks/useSound';
@@ -36,9 +36,9 @@ export function App() {
 
   return (
     <SoundContext.Provider value={settings.sound}>
-      <SoundToggle
-        on={settings.sound}
-        onToggle={() => {
+      <TopBar
+        sound={settings.sound}
+        onToggleSound={() => {
           setSettings((s) => ({ ...s, sound: !s.sound }));
         }}
       />
@@ -57,6 +57,10 @@ function Campaign() {
   useEffect(() => {
     if (campaign) saveCampaign(campaign);
   }, [campaign]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = String(campaign?.chapter ?? 1);
+  }, [campaign?.chapter]);
 
   if (!campaign) {
     return (
@@ -145,6 +149,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
           tier={tier}
           seed={seed}
           aiDelayMs={aiDelayMs}
+          eyebrow={chapter.eyebrow}
           heading={chapter.title}
           voice={tier}
           verdict={(winner) => (winner === 'player' ? chapter.verdict.won : chapter.verdict.lost)}
@@ -183,6 +188,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
           tier={tier}
           seed={seed}
           aiDelayMs={aiDelayMs}
+          eyebrow={chapter.eyebrow}
           heading={fight.heading}
           voice={tier}
           verdict={() => fight.interrupted}
@@ -208,6 +214,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
           tier={tier}
           seed={seed}
           aiDelayMs={aiDelayMs}
+          eyebrow={chapter.eyebrow}
           heading={coop.heading}
           voice="coop"
           verdict={() => coop.verdict}
@@ -236,6 +243,7 @@ interface MatchProps {
   readonly tier: AiTier;
   readonly seed: number;
   readonly aiDelayMs: number;
+  readonly eyebrow: string;
   readonly heading: string;
   readonly voice: Voice;
   readonly verdict: (winner: Winner) => string;
@@ -247,7 +255,7 @@ interface MatchProps {
 function Match({ mode, tier, seed, aiDelayMs, ...battle }: MatchProps) {
   const { state, dispatch } = useMatch({ tier, seed, aiDelayMs, mode });
   return state.phase === 'placement' ? (
-    <PlacementScreen state={state} dispatch={dispatch} />
+    <PlacementScreen state={state} dispatch={dispatch} eyebrow={battle.eyebrow} />
   ) : (
     <BattleScreen
       state={state}
