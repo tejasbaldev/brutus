@@ -17,6 +17,7 @@ import { endingLines, escalationFor, introLines } from '../story/script';
 import { TopBar } from './components/TopBar';
 import { useMatch } from './hooks/useMatch';
 import { useReducedMotion } from './hooks/useReducedMotion';
+import { moodFor, useMusic } from './hooks/useMusic';
 import { SoundContext } from './hooks/useSound';
 import { readDebugParams } from './params';
 import { randomSeed } from './random';
@@ -61,6 +62,8 @@ function Campaign() {
   useEffect(() => {
     document.documentElement.dataset.theme = String(campaign?.chapter ?? 1);
   }, [campaign?.chapter]);
+
+  useMusic(moodFor(campaign), campaign?.seed ?? 1);
 
   if (!campaign) {
     return (
