@@ -62,6 +62,8 @@ interface Ai {
 createAi(tier, rng): Ai
 ```
 
+- `densityMap(view)` (Tier 3's heatmap) is exported from `src/ai` and also drives the co-op
+  hint overlay.
 - AIs are stateless between calls: they rebuild any working state from `boardView` and `history`.
 - `BoardView` exposes only `'unknown' | 'miss' | 'hit' | 'sunk'` per cell, plus the remaining
   ship lengths. The AI can't cheat because the type system won't let it.
