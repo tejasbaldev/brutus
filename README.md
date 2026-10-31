@@ -1,4 +1,4 @@
-# Brutus: Engineers vs AI
+# Robin: Engineers vs AI
 
 A small game of Battleship about software engineers and AI. It's meant to build empathy, not dread.
 
