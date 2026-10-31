@@ -1,0 +1,58 @@
+/* The whole palette. Add a token here before using a new colour anywhere. */
+:root {
+  /*
+   * Five colours, one set per chapter: a saturated ground with ink type on top.
+   * The theme is set with data-theme on <html> (see App.tsx); chapter 1 is the default.
+   */
+  --bg: #2340e8; /* cobalt */
+  --fg: #f5f0e6;
+  --accent: #d9ff3f; /* the player's side, focus, cursor */
+  --signal: #ff9f1c; /* hits, incidents */
+  --muted: color-mix(in srgb, var(--fg) 62%, var(--bg));
+
+  /* Derived, never new colours: hairlines and washes. */
+  --hairline: color-mix(in srgb, var(--fg) 12%, transparent);
+  --hairline-strong: color-mix(in srgb, var(--fg) 26%, transparent);
+
+  --font-display: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 2rem;
+  --space-5: 3.5rem;
+  --space-6: 6rem;
+  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --measure: 34rem;
+
+  --duration: 240ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme='2'] {
+  --bg: #6b2fe3; /* violet */
+  --fg: #f6f0ff;
+  --accent: #e4ff5c;
+  --signal: #ff9f1c;
+}
+
+:root[data-theme='3'] {
+  --bg: #ff6d1f; /* tangerine */
+  --fg: #16100c;
+  --accent: #1f36e0;
+  --signal: #20104a;
+}
+
+:root[data-theme='4'] {
+  --bg: #0a7a43; /* green */
+  --fg: #f1f8ec;
+  --accent: #f0ff4d;
+  --signal: #14102e; /* ink: warm colours don't read on green */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration: 0ms;
+  }
+}
