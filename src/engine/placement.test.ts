@@ -184,4 +184,9 @@ describe('randomPlacement', () => {
       RangeError,
     );
   });
+
+  it('throws instead of looping forever when the fleet cannot fit together', () => {
+    const crowded = STANDARD_FLEET.slice(0, 3).map((s) => ({ ...s, length: 2 }));
+    expect(() => randomPlacement(crowded, createRng(1), 2)).toThrow(RangeError);
+  });
 });

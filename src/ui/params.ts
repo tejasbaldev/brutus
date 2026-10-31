@@ -13,6 +13,9 @@ export interface DebugParams {
   readonly chapter: Chapter | undefined;
 }
 
+/** Longer delays would leave the AI 'thinking' indefinitely. */
+export const MAX_AI_DELAY_MS = 10_000;
+
 export function readDebugParams(search: string = window.location.search): DebugParams {
   const params = new URLSearchParams(search);
   const int = (key: string) => {
@@ -22,10 +25,11 @@ export function readDebugParams(search: string = window.location.search): DebugP
   };
   const tier = int('tier');
   const chapter = int('chapter');
+  const delay = int('delay');
   return {
     tier: tier === 1 || tier === 2 || tier === 3 ? tier : undefined,
     seed: int('seed'),
-    aiDelayMs: int('delay'),
+    aiDelayMs: delay !== undefined && delay <= MAX_AI_DELAY_MS ? delay : undefined,
     chapter: chapter === 1 || chapter === 2 || chapter === 3 || chapter === 4 ? chapter : undefined,
   };
 }
