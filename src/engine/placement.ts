@@ -76,6 +76,7 @@ export function isFleetComplete(
 }
 
 const MAX_ATTEMPTS_PER_SHIP = 200;
+const MAX_RESTARTS = 1000;
 
 /** Places the whole fleet at random. Deterministic for a given rng state. */
 export function randomPlacement(
@@ -85,10 +86,11 @@ export function randomPlacement(
 ): readonly ShipPlacement[] {
   // Largest first: it is the hardest to fit. Restart from scratch on a dead end.
   const ordered = [...fleet].sort((a, b) => b.length - a.length);
-  for (;;) {
+  for (let restart = 0; restart < MAX_RESTARTS; restart++) {
     const placed = tryPlaceAll(ordered, fleet, rng, size);
     if (placed) return placed;
   }
+  throw new RangeError(`Fleet cannot fit together on a ${size}×${size} board`);
 }
 
 function tryPlaceAll(
