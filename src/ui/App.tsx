@@ -133,6 +133,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
   const chapter = chapters[campaign.chapter];
   const tier: AiTier = debug.tier ?? tierFor(campaign);
   const seed = matchSeed(campaign);
+  const saveId = `${stageKey(campaign)}-${campaign.seed}`;
   const continueButton = (
     <button type="button" className={styles.primary} onClick={proceed}>
       Continue
@@ -150,6 +151,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
       return (
         <Match
           mode="versus"
+          saveId={saveId}
           tier={tier}
           seed={seed}
           aiDelayMs={aiDelayMs}
@@ -189,6 +191,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
       return (
         <Match
           mode="versus"
+          saveId={saveId}
           tier={tier}
           seed={seed}
           aiDelayMs={aiDelayMs}
@@ -215,6 +218,7 @@ function Stage({ campaign, dispatch, proceed, aiDelayMs, onRestart }: StageProps
       return (
         <Match
           mode="coop"
+          saveId={saveId}
           tier={tier}
           seed={seed}
           aiDelayMs={aiDelayMs}
@@ -255,6 +259,7 @@ function Ending({ campaign, onRestart }: { campaign: CampaignState; onRestart: (
 
 interface MatchProps {
   readonly mode: MatchMode;
+  readonly saveId: string;
   readonly tier: AiTier;
   readonly seed: number;
   readonly aiDelayMs: number;
@@ -267,8 +272,8 @@ interface MatchProps {
   readonly interruptMessage?: string;
 }
 
-function Match({ mode, tier, seed, aiDelayMs, ...battle }: MatchProps) {
-  const { state, dispatch } = useMatch({ tier, seed, aiDelayMs, mode });
+function Match({ mode, saveId, tier, seed, aiDelayMs, ...battle }: MatchProps) {
+  const { state, dispatch } = useMatch({ tier, seed, aiDelayMs, mode, saveId });
   return state.phase === 'placement' ? (
     <PlacementScreen state={state} dispatch={dispatch} eyebrow={battle.eyebrow} />
   ) : (

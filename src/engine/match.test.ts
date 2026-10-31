@@ -6,7 +6,9 @@ import {
   boardFiredAtBy,
   createCoopMatch,
   createVersusMatch,
+  matchActions,
   matchReducer,
+  replayMatch,
   viewFor,
   type MatchAction,
   type MatchState,
@@ -296,5 +298,52 @@ describe('full games (property)', () => {
       const loser = m.winner === 'player' ? m.target : m.player;
       expect(loser.shots.filter((s) => s.result.kind !== 'miss')).toHaveLength(17);
     }
+  });
+});
+
+describe('replay (resuming a saved match)', () => {
+  const fresh = () => createVersusMatch({ opponentShips: stacked() });
+  const playShots = (m: MatchState, count: number): MatchState => {
+    const rng = createRng(7);
+    for (let i = 0; i < count && m.phase === 'battle'; i++) {
+      const view = viewFor(m, m.turn);
+      const unknown = allCoords(10).filter((c) => view.cells[c.row]?.[c.col] === 'unknown');
+      m = apply(m, { type: 'fire', by: m.turn, coord: pick(rng, unknown) });
+    }
+    return m;
+  };
+
+  it.each([
+    ['mid-placement', () => apply(fresh(), { type: 'place', placement: row('promotion', 2, 4) })],
+    ['just started', () => started()],
+    ['mid-battle', () => playShots(started(), 15)],
+    ['finished', () => playShots(started(), 200)],
+    [
+      'co-op',
+      () =>
+        playShots(
+          createCoopMatch({ incidentShips: randomPlacement(INCIDENT_FLEET, createRng(3)) }),
+          9,
+        ),
+    ],
+  ])('rebuilds a match %s', (_, make) => {
+    const state = make();
+    const initial =
+      state.mode === 'coop' ? createCoopMatch({ incidentShips: state.target.ships }) : fresh();
+    expect(replayMatch(initial, matchActions(state))).toEqual(state);
+  });
+
+  it('rejects actions the engine would not accept', () => {
+    const tampered: MatchAction[] = [
+      { type: 'place', placement: { ...row('promotion', 0, 4), length: 1 } },
+    ];
+    expect(replayMatch(fresh(), tampered)).toBeUndefined();
+    expect(
+      replayMatch(fresh(), [{ type: 'fire', by: 'player', coord: coord(0, 0) }]),
+    ).toBeUndefined();
+    const oneShot = matchActions(playShots(started(), 1));
+    const shot = oneShot[oneShot.length - 1];
+    if (!shot) throw new Error('no shot');
+    expect(replayMatch(fresh(), [...oneShot, shot])).toBeUndefined();
   });
 });

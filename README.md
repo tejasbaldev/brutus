@@ -22,8 +22,9 @@ way the story ends.
   **·** is a miss, and a solid cell is a sunk ship.
 - **Keyboard:** each board is one Tab stop. Use the arrow keys, Home/End and Ctrl+Home/End to
   move, and Enter or Space to act.
-- Progress is saved in your browser. Sound is off by default; turn it on with the switch in the
-  top-right corner. Animations are skipped when your system asks for reduced motion.
+- Progress is saved in your browser, down to the last shot: reload and press Continue to pick up
+  where you left off. Sound is off by default; turn it on with the switch in the top-right corner.
+  Animations are skipped when your system asks for reduced motion.
 
 ## Develop
 
