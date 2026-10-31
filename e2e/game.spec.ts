@@ -130,6 +130,11 @@ test('a reload resumes the layout being placed', async ({ page }) => {
   await expect(
     ownBoard(page).getByRole('gridcell', { name: 'A1, The Side Project' }),
   ).toBeVisible();
+
+  // The next ship goes down next, rather than moving the one already placed.
+  await ownBoard(page).getByRole('gridcell', { name: /^B1,/ }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toHaveText('Placed The Promotion at B1, across.');
 });
 
 test('a reload resumes the battle, shot for shot', async ({ page }) => {
@@ -147,4 +152,36 @@ test('a reload resumes the battle, shot for shot', async ({ page }) => {
   await resume(page);
   await expect(page.getByText(/^your move$/)).toBeVisible();
   expect([await labels(page, 'Their board'), await labels(page, 'Your board')]).toEqual(before);
+});
+
+test('a reload does not change the shots the AI goes on to fire', async ({ page }) => {
+  const aiShots = () =>
+    page.evaluate(() => {
+      const save = JSON.parse(localStorage.getItem('brutus:match') ?? '{}') as {
+        actions?: { type: string; by?: string; coord?: unknown }[];
+      };
+      return JSON.stringify(
+        (save.actions ?? []).filter((a) => a.type === 'fire' && a.by === 'ai').map((a) => a.coord),
+      );
+    });
+  const play = async (reloadAfter?: number) => {
+    await begin(page);
+    await page.getByRole('button', { name: 'Shuffle' }).click();
+    await page.getByRole('button', { name: 'Start' }).click();
+    for (let i = 0; i < 4; i++) {
+      if (i === reloadAfter) await resume(page);
+      await expect(page.getByText(/^your move$/)).toBeVisible();
+      await theirBoard(page)
+        .getByRole('gridcell')
+        .nth(i * 11)
+        .click();
+    }
+    await expect(page.getByText(/^your move$/)).toBeVisible();
+    return aiShots();
+  };
+  const resumed = await play(2);
+  await page.evaluate(() => {
+    localStorage.clear();
+  });
+  expect(await play()).toEqual(resumed);
 });
