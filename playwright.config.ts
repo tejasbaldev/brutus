@@ -8,7 +8,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: `http://localhost:${port}/brutus/`,
+    baseURL: `http://localhost:${port}/robin/`,
     trace: 'on-first-retry',
   },
   projects: [
@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `npm run build && npx vite preview --port ${port} --strictPort`,
-    url: `http://localhost:${port}/brutus/`,
+    url: `http://localhost:${port}/robin/`,
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -349,6 +349,35 @@
   color: var(--fg);
 }
 
+.title .subheading {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.title {
+  position: relative;
+}
+
+.titleArt {
+  position: absolute;
+  inset: auto 0 var(--space-5) auto;
+  width: min(46vw, 32rem);
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .titleArt {
+    position: static;
+    width: 100%;
+    max-width: 22rem;
+    margin-bottom: var(--space-4);
+  }
+}
+
 .title .rule {
   width: 3rem;
   height: 1px;

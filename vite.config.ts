@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 // GitHub Pages serves the site from /<repo>/.
 export default defineConfig({
-  base: '/brutus/',
+  base: '/robin/',
   plugins: [react()],
   test: {
     include: ['src/**/*.test.ts'],
