@@ -188,3 +188,30 @@ export function matchReducer(state: MatchState, action: MatchAction): MatchState
   const result = applyMatchAction(state, action);
   return result.ok ? result.value : state;
 }
+
+/** Actions that rebuild `state` from a fresh match: the current layout, then every shot. */
+export function matchActions(state: MatchState): MatchAction[] {
+  const placed = state.placing.map((placement): MatchAction => ({ type: 'place', placement }));
+  const started: MatchAction[] =
+    state.mode === 'versus' && state.phase !== 'placement' ? [{ type: 'start' }] : [];
+  const shots = state.log.map(({ by, shot }): MatchAction => ({
+    type: 'fire',
+    by,
+    coord: shot.coord,
+  }));
+  return [...placed, ...started, ...shots];
+}
+
+/** Replays `actions` on `initial`. Undefined if the engine rejects any of them. */
+export function replayMatch(
+  initial: MatchState,
+  actions: readonly MatchAction[],
+): MatchState | undefined {
+  let state = initial;
+  for (const action of actions) {
+    const next = applyMatchAction(state, action);
+    if (!next.ok) return undefined;
+    state = next.value;
+  }
+  return state;
+}

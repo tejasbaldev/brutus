@@ -108,3 +108,43 @@ test('arrow keys move focus across the target grid', async ({ page }) => {
   await page.keyboard.press('Enter');
   await expect(page.getByRole('log')).toContainText('You → B10');
 });
+
+const labels = async (page: Page, name: string) => {
+  const cells = await page.getByRole('grid', { name }).getByRole('gridcell').all();
+  return Promise.all(cells.map((c) => c.getAttribute('aria-label')));
+};
+
+const resume = async (page: Page) => {
+  await page.reload();
+  await page.getByRole('button', { name: 'Continue' }).click();
+};
+
+test('a reload resumes the layout being placed', async ({ page }) => {
+  await begin(page);
+  await ownBoard(page).getByRole('gridcell', { name: /^A1,/ }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Placed');
+
+  await resume(page);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Lay out your work');
+  await expect(
+    ownBoard(page).getByRole('gridcell', { name: 'A1, The Side Project' }),
+  ).toBeVisible();
+});
+
+test('a reload resumes the battle, shot for shot', async ({ page }) => {
+  await begin(page);
+  await page.getByRole('button', { name: 'Shuffle' }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
+  const cells = theirBoard(page).getByRole('gridcell');
+  for (let i = 0; i < 4; i++) {
+    await expect(page.getByText(/^your move$/)).toBeVisible();
+    await cells.nth(i * 11).click();
+  }
+  await expect(page.getByText(/^your move$/)).toBeVisible();
+  const before = [await labels(page, 'Their board'), await labels(page, 'Your board')];
+
+  await resume(page);
+  await expect(page.getByText(/^your move$/)).toBeVisible();
+  expect([await labels(page, 'Their board'), await labels(page, 'Your board')]).toEqual(before);
+});

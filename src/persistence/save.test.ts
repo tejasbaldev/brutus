@@ -1,11 +1,17 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createCampaign } from '../engine/campaign';
+import { coord } from '../engine/coord';
+import type { MatchAction } from '../engine/match';
 import {
+  MATCH_KEY,
+  MATCH_SAVE_VERSION,
   SAVE_KEY,
   SAVE_VERSION,
   clearSave,
   loadCampaign,
+  loadMatch,
   saveCampaign,
+  saveMatch,
   type SaveStorage,
 } from './save';
 
@@ -109,5 +115,50 @@ describe('save', () => {
       saveCampaign(createCampaign(1), broken);
     }).not.toThrow();
     expect(loadCampaign(broken)).toBeUndefined();
+  });
+
+  describe('match', () => {
+    const actions: MatchAction[] = [
+      {
+        type: 'place',
+        placement: { id: 'promotion', origin: coord(1, 2), orientation: 'v', length: 4 },
+      },
+      { type: 'start' },
+      { type: 'fire', by: 'player', coord: coord(3, 4) },
+    ];
+
+    it('round-trips the actions of the same match', () => {
+      saveMatch('1-match-0-42', actions, storage);
+      expect(loadMatch('1-match-0-42', storage)).toEqual(actions);
+    });
+
+    it('ignores the save of a different match', () => {
+      saveMatch('1-match-0-42', actions, storage);
+      expect(loadMatch('2-match-0-42', storage)).toBeUndefined();
+    });
+
+    it.each([
+      ['not JSON', '{oops'],
+      ['another version', { version: MATCH_SAVE_VERSION + 1, id: 'm', actions }],
+      ['no actions', { version: MATCH_SAVE_VERSION, id: 'm' }],
+      ['an unknown action', { version: MATCH_SAVE_VERSION, id: 'm', actions: [{ type: 'nuke' }] }],
+      [
+        'a bad coordinate',
+        {
+          version: MATCH_SAVE_VERSION,
+          id: 'm',
+          actions: [{ type: 'fire', by: 'player', coord: { row: -1, col: 'x' } }],
+        },
+      ],
+    ])('discards %s', (_, data) => {
+      storage.setItem(MATCH_KEY, typeof data === 'string' ? data : JSON.stringify(data));
+      expect(loadMatch('m', storage)).toBeUndefined();
+    });
+
+    it('is cleared with the campaign', () => {
+      saveMatch('m', actions, storage);
+      clearSave(storage);
+      expect(loadMatch('m', storage)).toBeUndefined();
+    });
   });
 });
