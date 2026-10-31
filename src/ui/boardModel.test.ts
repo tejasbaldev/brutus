@@ -85,4 +85,9 @@ describe('readDebugParams', () => {
     });
     expect(readDebugParams('')).toEqual({ tier: undefined, seed: undefined, aiDelayMs: undefined });
   });
+
+  it('ignores AI delays long enough to stall the game', () => {
+    expect(readDebugParams('?delay=10000').aiDelayMs).toBe(10_000);
+    expect(readDebugParams('?delay=99999999').aiDelayMs).toBeUndefined();
+  });
 });
