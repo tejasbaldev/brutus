@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { createAi, type AiTier } from '../../ai';
 import { INCIDENT_FLEET, STANDARD_FLEET } from '../../engine/fleet';
 import {
@@ -10,6 +10,7 @@ import {
   replayMatch,
   viewFor,
   type MatchMode,
+  type MatchState,
 } from '../../engine/match';
 import { randomPlacement } from '../../engine/placement';
 import { createRng } from '../../engine/rng';
@@ -23,6 +24,15 @@ interface Options {
   readonly mode?: MatchMode;
   /** Identifies this match in storage, so a reload resumes it. Omit to not save. */
   readonly saveId?: string | undefined;
+}
+
+/**
+ * A fresh stream per AI turn, keyed by how many shots it has fired, so a reload mid-match
+ * continues with the same shots. Kept apart from the layout seed so choices don't mirror placement.
+ */
+function aiRng(seed: number, state: MatchState) {
+  const turn = state.log.filter((t) => t.by === 'ai').length;
+  return createRng((seed ^ 0x9e3779b9) + Math.imul(turn + 1, 0x85ebca6b));
 }
 
 /** Runs one match: the engine reducer, plus the AI taking its turn after a pause. */
@@ -39,19 +49,17 @@ export function useMatch({ tier, seed, aiDelayMs, mode = 'versus', saveId }: Opt
   useEffect(() => {
     if (saveId !== undefined) saveMatch(saveId, matchActions(state));
   }, [state, saveId]);
-  // A separate stream from the layout seed, so the AI's choices don't mirror its placement.
-  const ai = useMemo(() => createAi(tier, createRng(seed ^ 0x9e3779b9)), [tier, seed]);
-
   useEffect(() => {
     if (state.phase !== 'battle' || state.turn !== 'ai') return;
     const timer = window.setTimeout(() => {
+      const ai = createAi(tier, aiRng(seed, state));
       const coord = ai.chooseShot(viewFor(state, 'ai'), boardFiredAtBy(state, 'ai').shots);
       dispatch({ type: 'fire', by: 'ai', coord });
     }, aiDelayMs);
     return () => {
       window.clearTimeout(timer);
     };
-  }, [state, ai, aiDelayMs]);
+  }, [state, tier, seed, aiDelayMs]);
 
   return { state, dispatch };
 }
