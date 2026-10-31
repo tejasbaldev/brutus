@@ -19,8 +19,9 @@ export const shipNames: Record<ShipId, string> = {
 };
 
 export const title = {
-  heading: 'Engineers vs AI',
-  lede: 'A game of Battleship about the work you love, and who else can do it.',
+  heading: 'Robin',
+  subheading: 'Engineers vs AI',
+  lede: 'You have always worked the night shift alone. Tonight the city lights a signal, and something answers.',
 };
 
 export const placement = {

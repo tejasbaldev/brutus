@@ -1,0 +1,42 @@
+.mask {
+  display: inline-block;
+  width: 1.6em;
+  height: 0.7em;
+  margin-right: 0.4em;
+  vertical-align: 0.05em;
+  color: var(--accent);
+}
+
+.scene {
+  --signal-fill: color-mix(in srgb, var(--accent) 30%, var(--bg));
+
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.beam {
+  fill: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.signal {
+  fill: var(--signal-fill);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.signalMask {
+  color: var(--fg);
+}
+
+.city {
+  fill: color-mix(in srgb, var(--fg) 12%, var(--bg));
+}
+
+.windows {
+  fill: var(--accent);
+}
+
+.hero {
+  fill: var(--fg);
+}

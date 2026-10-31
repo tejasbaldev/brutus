@@ -1,4 +1,4 @@
-# Brutus: Engineers vs AI
+# Robin: Engineers vs AI
 
 A small game of Battleship about software engineers and AI. It's meant to build empathy, not dread.
 
@@ -10,7 +10,7 @@ never ends the game; later chapters remember how it went. In the last chapter yo
 fighting, or team up with the AI against a shared Production Incident. Teaming up is the only
 way the story ends.
 
-**Play:** <https://tejasbaldev.github.io/brutus/>
+**Play:** <https://tejasbaldev.github.io/robin/>
 
 ![Chapter 2: the battle board, with the AI's commentary above it](docs/screenshot.png)
 
@@ -31,7 +31,7 @@ Requires Node 22 (see `.nvmrc`).
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173/brutus/
+npm run dev        # http://localhost:5173/robin/
 npm run check      # lint, format check, typecheck, unit tests, build (what CI runs)
 npm run test:e2e   # Playwright, desktop and mobile
 ```
@@ -69,9 +69,10 @@ build and Playwright) through [`.github/workflows/ci.yml`](.github/workflows/ci.
 The early scaffolding began in another tool (Claude Code) before the project moved to Devin. It
 was built in reviewed phases, one pull request each:
 
-1. Scaffold, tooling and CI ([#1](https://github.com/tejasbaldev/brutus/pull/1)): Claude Code
-2. Game engine ([#2](https://github.com/tejasbaldev/brutus/pull/2)): Claude Code
-3. AI tiers 1–3 ([#3](https://github.com/tejasbaldev/brutus/pull/3)): Claude Code
-4. Placement and battle UI ([#4](https://github.com/tejasbaldev/brutus/pull/4)): Claude Code
-5. Story layer: chapters, commentary, co-op ending ([#5](https://github.com/tejasbaldev/brutus/pull/5)): Devin
+1. Scaffold, tooling and CI ([#1](https://github.com/tejasbaldev/robin/pull/1)): Claude Code
+2. Game engine ([#2](https://github.com/tejasbaldev/robin/pull/2)): Claude Code
+3. AI tiers 1–3 ([#3](https://github.com/tejasbaldev/robin/pull/3)): Claude Code
+4. Placement and battle UI ([#4](https://github.com/tejasbaldev/robin/pull/4)): Claude Code
+5. Story layer: chapters, commentary, co-op ending ([#5](https://github.com/tejasbaldev/robin/pull/5)): Devin
 6. Polish: motion, sound, mobile, accessibility, README, Pages deploy: Devin
+7. Later: editorial redesign, chapter colours, music, the Devin tour, and the rename from Brutus to Robin: Devin

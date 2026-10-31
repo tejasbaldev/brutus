@@ -1,4 +1,4 @@
-# Brutus — Battleship: Engineers vs AI
+# Robin — Battleship: Engineers vs AI
 
 A small browser game. Battleship, retold as a story about software engineers competing with AI.
 **The goal is empathy, not doom.** The player should feel seen; the ending reframes competition
@@ -30,7 +30,7 @@ and polish a moment.
 ## Stack
 
 TypeScript (strict), Vite, React, Vitest, Playwright, ESLint, Prettier. No backend. A static site
-deployed to GitHub Pages at `/brutus/`. Node 22 (see `.nvmrc`).
+deployed to GitHub Pages at `/robin/`. Node 22 (see `.nvmrc`).
 
 **Dependencies are minimal by rule.** Ask before adding any runtime or dev dependency beyond:
 React, Vite, Vitest, Playwright, ESLint, Prettier, and their direct tooling packages

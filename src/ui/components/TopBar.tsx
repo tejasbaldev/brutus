@@ -1,3 +1,4 @@
+import { MaskMark } from './NightScene';
 import styles from './TopBar.module.css';
 
 interface Props {
@@ -9,7 +10,10 @@ interface Props {
 export function TopBar({ sound, onToggleSound }: Props) {
   return (
     <div className={styles.bar}>
-      <span className={styles.mark}>Brutus</span>
+      <span className={styles.mark}>
+        <MaskMark />
+        Robin
+      </span>
       <button
         type="button"
         className={styles.toggle}
