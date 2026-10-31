@@ -34,7 +34,10 @@ const ORIENTATION_TEXT: Record<Orientation, string> = { h: 'across', v: 'down' }
 
 export function PlacementScreen({ state, dispatch, eyebrow }: Props) {
   const heading = useFocusOnMount<HTMLHeadingElement>();
-  const [selected, setSelected] = useState<ShipId | null>(state.fleet[0]?.id ?? null);
+  // A resumed layout may already have ships down: start with the first one still to place.
+  const [selected, setSelected] = useState<ShipId | null>(
+    () => state.fleet.find((s) => !state.placing.some((p) => p.id === s.id))?.id ?? null,
+  );
   const [orientation, setOrientation] = useState<Orientation>('h');
   const [cursor, setCursor] = useState<Coord>(coord(0, 0));
   const [message, setMessage] = useState('');

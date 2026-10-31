@@ -130,6 +130,11 @@ test('a reload resumes the layout being placed', async ({ page }) => {
   await expect(
     ownBoard(page).getByRole('gridcell', { name: 'A1, The Side Project' }),
   ).toBeVisible();
+
+  // The next ship goes down next, rather than moving the one already placed.
+  await ownBoard(page).getByRole('gridcell', { name: /^B1,/ }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toHaveText('Placed The Promotion at B1, across.');
 });
 
 test('a reload resumes the battle, shot for shot', async ({ page }) => {
